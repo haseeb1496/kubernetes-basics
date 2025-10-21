@@ -1,0 +1,20 @@
+{
+  "name": "kubernetes-basics",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/haseeb1496/kubernetes-basics#readme",
+  "bugs": {
+    "url": "https://github.com/haseeb1496/kubernetes-basics/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haseeb1496/kubernetes-basics.git"
+  },
+  "license": "ISC",
+  "author": "Haseeb Ullah Usmani",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  }
+}
