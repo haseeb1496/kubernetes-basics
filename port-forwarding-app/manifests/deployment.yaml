@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: port-forwarding-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: port-forwarding
+  template:
+    metadata:
+      labels:
+        app: port-forwarding
+    spec:
+      containers:
+        - name: port-forwarding-container
+          image: port-forwarding:latest
+          imagePullPolicy: IfNotPresent
