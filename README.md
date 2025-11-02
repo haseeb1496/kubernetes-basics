@@ -11,3 +11,4 @@
 - [1.5.](https://github.com/haseeb1496/kubernetes-basics/tree/1.5/port-forwarding-app)
 - [1.6.](https://github.com/haseeb1496/kubernetes-basics/tree/1.6/port-forwarding-app/manifests)
 - [1.7.](https://github.com/haseeb1496/kubernetes-basics/tree/1.7/log-output)
+- [1.8.](https://github.com/haseeb1496/kubernetes-basics/tree/1.8)
