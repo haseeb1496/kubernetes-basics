@@ -1,3 +1,11 @@
+const Koa = require("koa");
+const Router = require("@koa/router");
+
+const app = new Koa();
+const router = new Router();
+
+const PORT = process.env.PORT || 3000;
+
 function generateRandomString(length = 16) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -11,13 +19,28 @@ function generateRandomString(length = 16) {
   return result;
 }
 
-const randromString = generateRandomString();
+const randomString = generateRandomString();
 
 const getRandomString = () => {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp}: ${randromString}`);
+  console.log(`${timestamp}: ${randomString}`);
 
   setTimeout(getRandomString, 5000);
 };
+
+router.get("/status", (ctx) => {
+  const timestamp = new Date().toISOString();
+
+  ctx.body = {
+    timestamp,
+    randomString: randomString,
+  };
+});
+
+app.use(router.routes()).use(router.allowedMethods());
+
+app.listen(PORT, () => {
+  console.log(`Listening to port: ${PORT}`);
+});
 
 getRandomString();

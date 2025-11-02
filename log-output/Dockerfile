@@ -1,11 +1,10 @@
-
-FROM node:20-alpine
+FROM node:alpine
 
 WORKDIR /usr/src/app
 
 COPY package* ./
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 

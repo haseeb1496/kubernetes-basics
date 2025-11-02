@@ -16,5 +16,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
+  },
+  "dependencies": {
+    "@koa/router": "^14.0.0",
+    "koa": "^3.1.1"
   }
 }
