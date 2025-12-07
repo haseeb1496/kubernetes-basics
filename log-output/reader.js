@@ -6,64 +6,47 @@ const app = new Koa();
 const router = new Router();
 
 const PORT = process.env.PORT || 3000;
-const LOG_FILE_PATH = "/shared/logs.txt";
-const COUNTER_FILE_PATH = "/shared/pingpong-counter.txt";
+const IMAGE_FILE_PATH = "/shared/current-image.jpg";
 
-function readLogFile() {
-  try {
-    if (fs.existsSync(LOG_FILE_PATH)) {
-      const content = fs.readFileSync(LOG_FILE_PATH, "utf8");
-      // Return the last entry (most recent)
-      const lines = content
-        .trim()
-        .split("\n")
-        .filter((line) => line.length > 0);
-      const lastLine = lines[lines.length - 1];
-
-      if (lastLine) {
-        // Parse timestamp and random string from format: "2024-01-01T12:00:00.000Z: randomString"
-        const [timestamp, randomString] = lastLine.split(": ");
-        return { timestamp, randomString };
-      }
-    }
-    return {
-      timestamp: new Date().toISOString(),
-      randomString: "No data available yet",
-    };
-  } catch (error) {
-    console.error("Error reading log file:", error);
-    return {
-      timestamp: new Date().toISOString(),
-      randomString: "Error reading file",
-    };
-  }
-}
-
-function readPingPongCounter() {
-  try {
-    if (fs.existsSync(COUNTER_FILE_PATH)) {
-      const content = fs.readFileSync(COUNTER_FILE_PATH, "utf8").trim();
-      return parseInt(content, 10) || 0;
-    }
-  } catch (error) {
-    console.error("Error reading counter file:", error);
-  }
-  return 0;
-}
-
+// Serve the main page with HTML content
 router.get("/", (ctx) => {
-  const logData = readLogFile();
-  const pingPongCounter = readPingPongCounter();
-
-  ctx.body = `${logData.timestamp}: ${logData.randomString}.
-Ping / Pongs: ${pingPongCounter}`;
-
-  console.log(`Served: ${ctx.body}`);
+  ctx.type = "text/html";
+  ctx.body = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+    </head>
+    <body>
+        <h1>Project app</h1>
+        <div class="container">
+            
+            <div class="image-section">
+                <img src="/image" alt="Random image" style="max-width: 600px; height: auto; border: 2px solid #333; margin: 20px 0;" />
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
 });
 
-// Health check endpoint
-router.get("/health", (ctx) => {
-  ctx.body = { status: "Reader container is healthy" };
+// Serve the cached image
+router.get("/image", (ctx) => {
+  try {
+    if (fs.existsSync(IMAGE_FILE_PATH)) {
+      const imageBuffer = fs.readFileSync(IMAGE_FILE_PATH);
+      ctx.type = "image/jpeg";
+      ctx.body = imageBuffer;
+      console.log("Served cached image");
+    } else {
+      ctx.status = 404;
+      ctx.body = "Image not found";
+      console.log("Image requested but not found");
+    }
+  } catch (error) {
+    console.error("Error serving image:", error);
+    ctx.status = 500;
+    ctx.body = "Error serving image";
+  }
 });
 
 app.use(router.routes()).use(router.allowedMethods());
