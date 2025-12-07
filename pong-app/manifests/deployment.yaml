@@ -12,9 +12,16 @@ spec:
       labels:
         app: pong-app
     spec:
+      volumes:
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: shared-data-pvc
       containers:
         - name: pong-app-container
           image: pong-app:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - name: shared-data
+              mountPath: /shared
