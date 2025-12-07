@@ -1,0 +1,21 @@
+{
+  "name": "log-output-writer",
+  "version": "1.0.0",
+  "description": "Writer container that generates random strings and writes to a shared file",
+  "homepage": "https://github.com/haseeb1496/kubernetes-basics#readme",
+  "bugs": {
+    "url": "https://github.com/haseeb1496/kubernetes-basics/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haseeb1496/kubernetes-basics.git"
+  },
+  "license": "ISC",
+  "author": "Haseeb Ullah Usmani",
+  "type": "commonjs",
+  "main": "writer.js",
+  "scripts": {
+    "start": "node writer.js"
+  },
+  "dependencies": {}
+}

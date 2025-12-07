@@ -1,0 +1,11 @@
+FROM node:alpine
+
+WORKDIR /usr/src/app
+
+COPY package-writer.json ./package.json
+
+RUN npm install
+
+COPY writer.js .
+
+CMD ["npm", "start"]
