@@ -7,6 +7,7 @@ const router = new Router();
 
 const PORT = process.env.PORT || 3000;
 const LOG_FILE_PATH = "/shared/logs.txt";
+const COUNTER_FILE_PATH = "/shared/pingpong-counter.txt";
 
 function readLogFile() {
   try {
@@ -38,15 +39,26 @@ function readLogFile() {
   }
 }
 
+function readPingPongCounter() {
+  try {
+    if (fs.existsSync(COUNTER_FILE_PATH)) {
+      const content = fs.readFileSync(COUNTER_FILE_PATH, "utf8").trim();
+      return parseInt(content, 10) || 0;
+    }
+  } catch (error) {
+    console.error("Error reading counter file:", error);
+  }
+  return 0;
+}
+
 router.get("/", (ctx) => {
   const logData = readLogFile();
+  const pingPongCounter = readPingPongCounter();
 
-  ctx.body = {
-    timestamp: logData.timestamp,
-    randomString: logData.randomString,
-  };
+  ctx.body = `${logData.timestamp}: ${logData.randomString}.
+Ping / Pongs: ${pingPongCounter}`;
 
-  console.log(`Served: ${JSON.stringify(ctx.body)}`);
+  console.log(`Served: ${ctx.body}`);
 });
 
 // Health check endpoint
