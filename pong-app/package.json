@@ -1,0 +1,16 @@
+{
+  "name": "pong-app",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Haseeb",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@koa/router": "^14.0.0",
+    "koa": "^3.1.1"
+  }
+}

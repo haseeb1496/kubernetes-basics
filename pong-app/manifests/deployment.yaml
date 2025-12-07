@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: log-output-deployment
+  name: pong-app-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: log-output
+      app: pong-app
   template:
     metadata:
       labels:
-        app: log-output
+        app: pong-app
     spec:
       containers:
-        - name: log-output-container
-          image: log-output:latest
+        - name: pong-app-container
+          image: pong-app:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

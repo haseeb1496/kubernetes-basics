@@ -28,7 +28,7 @@ const getRandomString = () => {
   setTimeout(getRandomString, 5000);
 };
 
-router.get("/status", (ctx) => {
+router.get("/", (ctx) => {
   const timestamp = new Date().toISOString();
 
   ctx.body = {
