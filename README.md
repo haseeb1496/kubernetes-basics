@@ -13,3 +13,4 @@
 - [1.7.](https://github.com/haseeb1496/kubernetes-basics/tree/1.7/log-output)
 - [1.8.](https://github.com/haseeb1496/kubernetes-basics/tree/1.8)
 - [1.9.](https://github.com/haseeb1496/kubernetes-basics/tree/1.9)
+- [1.10.](https://github.com/haseeb1496/kubernetes-basics/tree/1.10)

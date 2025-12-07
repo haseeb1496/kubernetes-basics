@@ -13,9 +13,9 @@ let counter = 0;
 router.get("/pingpong", (ctx) => {
   const response = `pong ${counter}`;
   counter++;
-  
+
   console.log(`Request received. Response: ${response}`);
-  
+
   ctx.body = response;
 });
 
