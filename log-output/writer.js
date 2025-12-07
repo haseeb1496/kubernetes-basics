@@ -30,7 +30,7 @@ if (!fs.existsSync(logDir)) {
 function writeLogEntry() {
   const timestamp = new Date().toISOString();
   const logEntry = `${timestamp}: ${randomString}\n`;
-  
+
   try {
     // Append to the log file
     fs.appendFileSync(LOG_FILE_PATH, logEntry);
@@ -38,7 +38,7 @@ function writeLogEntry() {
   } catch (error) {
     console.error("Error writing to file:", error);
   }
-  
+
   // Schedule next write in 5 seconds
   setTimeout(writeLogEntry, 5000);
 }
