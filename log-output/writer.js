@@ -1,22 +1,75 @@
 const fs = require("fs");
 const path = require("path");
+const http = require("http");
 
-// Shared directory path - this will be a mounted volume
 const LOG_FILE_PATH = "/shared/logs.txt";
 const IMAGE_FILE_PATH = "/shared/current-image.jpg";
 const IMAGE_METADATA_PATH = "/shared/image-metadata.json";
 
+const PING_PONG_SERVICE = process.env.PING_PONG_SERVICE || "pong-app-svc";
+const PING_PONG_PORT = process.env.PING_PONG_PORT || "3000";
+
 function generateRandomString(length = 16) {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const chars = "abcdef0123456789";
   let result = "";
 
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < 32; i++) {
+    if (i === 8 || i === 12 || i === 16 || i === 20) {
+      result += "-";
+    }
     const randomIndex = Math.floor(Math.random() * chars.length);
     result += chars[randomIndex];
   }
 
   return result;
+}
+
+function fetchPingPongCounter() {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: PING_PONG_SERVICE,
+      port: PING_PONG_PORT,
+      path: "/counter",
+      method: "GET",
+      timeout: 5000,
+    };
+
+    const request = http.request(options, (response) => {
+      let data = "";
+
+      response.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      response.on("end", () => {
+        try {
+          if (response.statusCode === 200) {
+            const result = JSON.parse(data);
+            resolve(result.counter);
+          } else {
+            console.error(`HTTP error: ${response.statusCode}`);
+            resolve("N/A");
+          }
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+          resolve("N/A");
+        }
+      });
+    });
+
+    request.on("error", (error) => {
+      console.error("Error fetching ping-pong counter:", error.message);
+      resolve("N/A");
+    });
+
+    request.on("timeout", () => {
+      console.error("Timeout fetching ping-pong counter");
+      request.destroy();
+      resolve("N/A");
+    });
+
+    request.end();
+  });
 }
 
 // Generate random string on startup
@@ -227,9 +280,10 @@ async function checkAndUpdateImage() {
   }
 }
 
-function writeLogEntry() {
+async function writeLogEntry() {
   const timestamp = new Date().toISOString();
-  const logEntry = `${timestamp}: ${randomString}\n`;
+  const pingCounter = await fetchPingPongCounter();
+  const logEntry = `${timestamp}: ${randomString}.\nPing / Pongs: ${pingCounter}\n`;
 
   try {
     // Append to the log file
