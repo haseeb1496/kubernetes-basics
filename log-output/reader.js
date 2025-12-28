@@ -16,25 +16,73 @@ router.get("/", (ctx) => {
     <html>
     <head>
         <title>Project App</title>
-        <script>   
-            function sendTodo() {
+        <script>
+            const TODO_API_BASE = '/todos';
+            
+            async function loadTodos() {
+                try {
+                    const response = await fetch(TODO_API_BASE);
+                    const data = await response.json();
+                    
+                    if (data.success && data.todos) {
+                        const todoList = document.getElementById('todoList');
+                        todoList.innerHTML = ''; // Clear existing todos
+                        
+                        data.todos.forEach(todo => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = todo.text;
+                            todoList.appendChild(listItem);
+                        });
+                    } else {
+                        console.error('Failed to load todos:', data);
+                    }
+                } catch (error) {
+                    console.error('Error loading todos:', error);
+                    alert('Failed to load todos. Please refresh the page.');
+                }
+            }
+            
+            async function sendTodo() {
                 const input = document.getElementById('todoInput');
                 const todoText = input.value.trim();
                 
-                if (todoText.length > 0) {
-                    // Add the todo to the list
-                    const todoList = document.getElementById('todoList');
-                    const newTodo = document.createElement('li');
-                    newTodo.textContent = todoText;
-                    todoList.appendChild(newTodo);
-                    
-                    // Clear the input
-                    input.value = '';
-                    
-                    // Update button state
-                    document.getElementById('sendBtn').disabled = true;
-                } else {
+                if (todoText.length === 0) {
                     alert('Please enter a todo');
+                    return;
+                }
+                
+                if (todoText.length > 140) {
+                    alert('Todo cannot be longer than 140 characters');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(TODO_API_BASE, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: todoText })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.todo) {
+                        // Add the new todo to the list
+                        const todoList = document.getElementById('todoList');
+                        const newTodo = document.createElement('li');
+                        newTodo.textContent = data.todo.text;
+                        todoList.appendChild(newTodo);
+                        
+                        // Clear the input
+                        input.value = '';
+                        updateInput();
+                    } else {
+                        alert('Failed to create todo: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error creating todo:', error);
+                    alert('Failed to create todo. Please try again.');
                 }
             }
             
@@ -52,18 +100,18 @@ router.get("/", (ctx) => {
                     }
                 }
             }
+        
+            window.addEventListener('DOMContentLoaded', loadTodos);
         </script>
     </head>
     <body>
         <h1>Project App</h1>
-        
-        <h2>Daily Image</h2>
+
         <img src="/image" alt="Random image" />
         <input 
             id="todoInput" 
             oninput="updateInput()"
             onkeypress="handleKeyPress(event)"
-            placeholder="Enter a new todo..."
         />
         <br>
         <button id="sendBtn" onclick="sendTodo()" disabled>Create todo</button>

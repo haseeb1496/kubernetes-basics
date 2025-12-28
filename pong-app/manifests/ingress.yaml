@@ -13,6 +13,13 @@ spec:
                 name: pong-app-svc
                 port:
                   number: 3000
+          - path: /todos
+            pathType: Prefix
+            backend:
+              service:
+                name: todo-backend-svc
+                port:
+                  number: 3000
           - path: /
             pathType: Prefix
             backend:
