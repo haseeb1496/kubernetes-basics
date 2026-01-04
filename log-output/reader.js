@@ -5,6 +5,9 @@ const fs = require("fs");
 const app = new Koa();
 const router = new Router();
 
+const http = require("http");
+const { URL } = require("url");
+
 const PORT = process.env.PORT || 3000;
 const IMAGE_FILE_PATH = "/shared/current-image.jpg";
 
@@ -122,6 +125,56 @@ router.get("/", (ctx) => {
     </body>
     </html>
   `;
+});
+
+// Proxy routes for todo API
+const TODO_BACKEND_URL =
+  "http://todo-backend-svc.project.svc.cluster.local:3000";
+
+// Proxy GET /todos
+router.get("/todos", async (ctx) => {
+  try {
+    const response = await fetch(`${TODO_BACKEND_URL}/todos`);
+    const data = await response.json();
+    ctx.body = data;
+    ctx.status = response.status;
+  } catch (error) {
+    console.error("Error proxying GET /todos:", error);
+    ctx.status = 500;
+    ctx.body = { success: false, error: "Failed to connect to todo backend" };
+  }
+});
+
+// Proxy POST /todos
+router.post("/todos", async (ctx) => {
+  try {
+    // Parse request body
+    const body = await new Promise((resolve) => {
+      let data = "";
+      ctx.req.on("data", (chunk) => {
+        data += chunk;
+      });
+      ctx.req.on("end", () => {
+        resolve(data);
+      });
+    });
+
+    const response = await fetch(`${TODO_BACKEND_URL}/todos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body,
+    });
+
+    const responseData = await response.json();
+    ctx.body = responseData;
+    ctx.status = response.status;
+  } catch (error) {
+    console.error("Error proxying POST /todos:", error);
+    ctx.status = 500;
+    ctx.body = { success: false, error: "Failed to connect to todo backend" };
+  }
 });
 
 // Serve the cached image
