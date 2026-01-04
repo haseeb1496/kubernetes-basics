@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: wikipedia-todo-cronjob
+  namespace: project
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: wikipedia-todo-cronjob
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: wikipedia-todo-generator
+              image: todo-app-cronjob:latest
+              env:
+                - name: TODO_BACKEND_URL
+                  value: "http://todo-backend-svc.project.svc.cluster.local:3000"
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "100m"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
