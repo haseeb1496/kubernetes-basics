@@ -6,7 +6,8 @@ const LOG_FILE_PATH = "/shared/logs.txt";
 const IMAGE_FILE_PATH = "/shared/current-image.jpg";
 const IMAGE_METADATA_PATH = "/shared/image-metadata.json";
 
-const PING_PONG_SERVICE = process.env.PING_PONG_SERVICE || "pong-app-svc";
+const PING_PONG_SERVICE =
+  process.env.PING_PONG_SERVICE || "pong-app-svc.exercises.svc.cluster.local";
 const PING_PONG_PORT = process.env.PING_PONG_PORT || "3000";
 
 function generateRandomString(length = 16) {
