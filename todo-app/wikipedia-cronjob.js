@@ -84,9 +84,11 @@ async function generateWikipediaTodo() {
 
     const todoText = `Read ${wikipediaUrl}`;
 
-    if (todoText.length > 200) {
-      console.warn("Todo text is too long, truncating...");
-      const truncatedText = todoText.substring(0, 197) + "...";
+    if (todoText.length > 140) {
+      console.warn(
+        `Todo text is too long (${todoText.length} chars), truncating to 140 characters...`
+      );
+      const truncatedText = todoText.substring(0, 137) + "...";
       await createTodo(truncatedText);
     } else {
       await createTodo(todoText);

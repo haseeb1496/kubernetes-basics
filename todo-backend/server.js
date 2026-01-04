@@ -79,20 +79,51 @@ async function createTodo(text) {
 let todos = [];
 let nextId = 1;
 
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  const timestamp = new Date().toISOString();
+
+  console.log(`[${timestamp}] ${ctx.method} ${ctx.url} - Request started`);
+
+  if (ctx.request.body && Object.keys(ctx.request.body).length > 0) {
+    console.log(
+      `[${timestamp}] Request body:`,
+      JSON.stringify(ctx.request.body)
+    );
+  }
+
+  await next();
+
+  const ms = Date.now() - start;
+  const endTimestamp = new Date().toISOString();
+  console.log(
+    `[${endTimestamp}] ${ctx.method} ${ctx.url} - ${ctx.status} - ${ms}ms`
+  );
+
+  if (ctx.status >= 400) {
+    console.warn(`[${endTimestamp}] ERROR RESPONSE:`, JSON.stringify(ctx.body));
+  }
+});
+
 app.use(cors());
 app.use(bodyParser());
 
 router.get("/todos", async (ctx) => {
-  console.log("GET /todos - Fetching all todos");
+  console.log(`[${new Date().toISOString()}] GET /todos - Fetching all todos`);
   try {
     const todos = await getAllTodos();
+    console.log(
+      `[${new Date().toISOString()}] GET /todos - Successfully fetched ${
+        todos.length
+      } todos`
+    );
     ctx.type = "application/json";
     ctx.body = {
       success: true,
       todos: todos,
     };
   } catch (error) {
-    console.error("Error in GET /todos:", error);
+    console.error(`[${new Date().toISOString()}] ERROR in GET /todos:`, error);
     ctx.status = 500;
     ctx.body = {
       success: false,
@@ -103,8 +134,16 @@ router.get("/todos", async (ctx) => {
 
 router.post("/todos", async (ctx) => {
   const { text } = ctx.request.body;
+  const timestamp = new Date().toISOString();
+
+  console.log(
+    `[${timestamp}] POST /todos - Creating new todo with text: "${text}"`
+  );
 
   if (!text || typeof text !== "string" || text.trim().length === 0) {
+    console.warn(
+      `[${timestamp}] POST /todos - VALIDATION ERROR: Empty or invalid text`
+    );
     ctx.status = 400;
     ctx.body = {
       success: false,
@@ -114,17 +153,24 @@ router.post("/todos", async (ctx) => {
   }
 
   if (text.length > TODO_MAX_LENGTH) {
+    console.warn(
+      `[${timestamp}] POST /todos - VALIDATION ERROR: Text too long (${text.length} chars, max: ${TODO_MAX_LENGTH})`
+    );
     ctx.status = 400;
     ctx.body = {
       success: false,
       error: `Todo text cannot be longer than ${TODO_MAX_LENGTH} characters`,
+      actualLength: text.length,
+      maxLength: TODO_MAX_LENGTH,
     };
     return;
   }
 
   try {
     const newTodo = await createTodo(text.trim());
-    console.log("POST /todos - Created new todo:", newTodo);
+    console.log(
+      `[${timestamp}] POST /todos - Successfully created todo with ID: ${newTodo.id}`
+    );
 
     ctx.status = 201;
     ctx.type = "application/json";
@@ -133,7 +179,7 @@ router.post("/todos", async (ctx) => {
       todo: newTodo,
     };
   } catch (error) {
-    console.error("Error in POST /todos:", error);
+    console.error(`[${timestamp}] ERROR in POST /todos:`, error);
     ctx.status = 500;
     ctx.body = {
       success: false,
