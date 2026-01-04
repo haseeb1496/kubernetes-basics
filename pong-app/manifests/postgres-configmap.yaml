@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-configmap
+  namespace: exercises
+data:
+  POSTGRES_DB: "pingpongdb"
+  POSTGRES_USER: "pingponguser"
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
