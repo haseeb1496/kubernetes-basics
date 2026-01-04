@@ -7,6 +7,7 @@ const app = new Koa();
 const router = new Router();
 
 const PORT = process.env.PORT || 3000;
+const TODO_MAX_LENGTH = parseInt(process.env.TODO_MAX_LENGTH) || 140;
 
 let todos = [];
 let nextId = 1;
@@ -35,11 +36,11 @@ router.post("/todos", (ctx) => {
     return;
   }
 
-  if (text.length > 140) {
+  if (text.length > TODO_MAX_LENGTH) {
     ctx.status = 400;
     ctx.body = {
       success: false,
-      error: "Todo text cannot be longer than 140 characters",
+      error: `Todo text cannot be longer than ${TODO_MAX_LENGTH} characters`,
     };
     return;
   }

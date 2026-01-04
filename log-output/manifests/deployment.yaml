@@ -40,6 +40,17 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
+          env:
+            - name: TODO_BACKEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_BACKEND_URL
+            - name: TODO_MAX_LENGTH
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_MAX_LENGTH
           volumeMounts:
             - name: shared-data
               mountPath: /shared

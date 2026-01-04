@@ -5,13 +5,9 @@ const fs = require("fs");
 const app = new Koa();
 const router = new Router();
 
-const http = require("http");
-const { URL } = require("url");
-
 const PORT = process.env.PORT || 3000;
 const IMAGE_FILE_PATH = "/shared/current-image.jpg";
 
-// Serve the main page with HTML content
 router.get("/", (ctx) => {
   ctx.type = "text/html";
   ctx.body = `
@@ -21,6 +17,7 @@ router.get("/", (ctx) => {
         <title>Project App</title>
         <script>
             const TODO_API_BASE = '/todos';
+            const TODO_MAX_LENGTH = ${TODO_MAX_LENGTH};
             
             async function loadTodos() {
                 try {
@@ -54,8 +51,8 @@ router.get("/", (ctx) => {
                     return;
                 }
                 
-                if (todoText.length > 140) {
-                    alert('Todo cannot be longer than 140 characters');
+                if (todoText.length > TODO_MAX_LENGTH) {
+                    alert('Todo cannot be longer than ' + TODO_MAX_LENGTH + ' characters');
                     return;
                 }
                 
@@ -127,11 +124,11 @@ router.get("/", (ctx) => {
   `;
 });
 
-// Proxy routes for todo API
 const TODO_BACKEND_URL =
+  process.env.TODO_BACKEND_URL ||
   "http://todo-backend-svc.project.svc.cluster.local:3000";
+const TODO_MAX_LENGTH = parseInt(process.env.TODO_MAX_LENGTH) || 140;
 
-// Proxy GET /todos
 router.get("/todos", async (ctx) => {
   try {
     const response = await fetch(`${TODO_BACKEND_URL}/todos`);

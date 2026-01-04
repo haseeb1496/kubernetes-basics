@@ -21,4 +21,12 @@ spec:
             - containerPort: 3000
           env:
             - name: PORT
-              value: "3000"
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_BACKEND_SERVICE_PORT
+            - name: TODO_MAX_LENGTH
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_MAX_LENGTH

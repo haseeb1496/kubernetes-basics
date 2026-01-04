@@ -21,6 +21,9 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
-              value: "8080"
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_APP_PORT
           ports:
             - containerPort: 8080
