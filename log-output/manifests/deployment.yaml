@@ -17,13 +17,24 @@ spec:
         - name: shared-data
           persistentVolumeClaim:
             claimName: shared-data-pvc
+        - name: config-volume
+          configMap:
+            name: log-output-configmap
       containers:
         - name: log-writer
           image: log-output-writer:latest
           imagePullPolicy: IfNotPresent
+          env:
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-configmap
+                  key: MESSAGE
           volumeMounts:
             - name: shared-data
               mountPath: /shared
+            - name: config-volume
+              mountPath: /config
         - name: log-reader
           image: log-output-reader:latest
           imagePullPolicy: IfNotPresent

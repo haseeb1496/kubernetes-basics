@@ -5,6 +5,7 @@ const http = require("http");
 const LOG_FILE_PATH = "/shared/logs.txt";
 const IMAGE_FILE_PATH = "/shared/current-image.jpg";
 const IMAGE_METADATA_PATH = "/shared/image-metadata.json";
+const CONFIG_FILE_PATH = "/config/information.txt";
 
 const PING_PONG_SERVICE =
   process.env.PING_PONG_SERVICE || "pong-app-svc.exercises.svc.cluster.local";
@@ -30,7 +31,7 @@ function fetchPingPongCounter() {
     const options = {
       hostname: PING_PONG_SERVICE,
       port: PING_PONG_PORT,
-      path: "/counter",
+      path: "/pingpong",
       method: "GET",
       timeout: 5000,
     };
@@ -45,14 +46,19 @@ function fetchPingPongCounter() {
       response.on("end", () => {
         try {
           if (response.statusCode === 200) {
-            const result = JSON.parse(data);
-            resolve(result.counter);
+            const match = data.match(/pong (\d+)/);
+            if (match) {
+              resolve(parseInt(match[1]));
+            } else {
+              console.error("Unexpected response format:", data);
+              resolve("N/A");
+            }
           } else {
             console.error(`HTTP error: ${response.statusCode}`);
             resolve("N/A");
           }
         } catch (error) {
-          console.error("Error parsing JSON:", error);
+          console.error("Error parsing response:", error);
           resolve("N/A");
         }
       });
@@ -81,6 +87,23 @@ console.log(`Writer started with random string: ${randomString}`);
 const logDir = path.dirname(LOG_FILE_PATH);
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
+}
+
+function readConfigFile() {
+  try {
+    if (fs.existsSync(CONFIG_FILE_PATH)) {
+      return fs.readFileSync(CONFIG_FILE_PATH, "utf8").trim();
+    } else {
+      return "Config file not found";
+    }
+  } catch (error) {
+    console.error("Error reading config file:", error);
+    return "Error reading config file";
+  }
+}
+
+function getMessageEnvVar() {
+  return process.env.MESSAGE || "Environment variable not set";
 }
 
 function fetchImage() {
@@ -284,7 +307,10 @@ async function checkAndUpdateImage() {
 async function writeLogEntry() {
   const timestamp = new Date().toISOString();
   const pingCounter = await fetchPingPongCounter();
-  const logEntry = `${timestamp}: ${randomString}.\nPing / Pongs: ${pingCounter}\n`;
+  const fileContent = readConfigFile();
+  const messageEnvVar = getMessageEnvVar();
+
+  const logEntry = `file content: ${fileContent}\nenv variable: MESSAGE=${messageEnvVar}\n${timestamp}: ${randomString}.\nPing / Pongs: ${pingCounter}\n`;
 
   try {
     // Append to the log file
