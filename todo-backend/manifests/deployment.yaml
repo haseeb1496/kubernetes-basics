@@ -30,3 +30,40 @@ spec:
                 configMapKeyRef:
                   name: todo-project-configmap
                   key: TODO_MAX_LENGTH
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-postgres-configmap
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-postgres-configmap
+                  key: POSTGRES_PORT
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-postgres-configmap
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-postgres-configmap
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-postgres-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /todos
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /todos
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
