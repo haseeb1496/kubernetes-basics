@@ -4,6 +4,13 @@ metadata:
   name: log-output-configmap
   namespace: exercises
 data:
-  MESSAGE: "hello world"
+  MESSAGE: "hello world - GitOps Demo Active!"
+  DEMO_TIME: "2026-01-11 19:25 - Demonstrating automatic sync"
+  GITOPS_STATUS: "Ready for automatic deployment"
   information.txt: |
     this text is from file
+
+    This change demonstrates GitOps:
+    - Modified in repository
+    - ArgoCD detects changes automatically
+    - Deploys to cluster without manual intervention

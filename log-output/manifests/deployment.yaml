@@ -3,6 +3,10 @@ kind: Deployment
 metadata:
   name: log-output-deployment
   namespace: exercises
+  labels:
+    app: log-output
+    gitops-demo: "active"
+    last-update: "2026-01-11-1920"
 spec:
   replicas: 1
   selector:
