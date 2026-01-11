@@ -35,3 +35,4 @@
 
 - [4.1](https://github.com/haseeb1496/kubernetes-basics/tree/4.1)
 - [4.2](https://github.com/haseeb1496/kubernetes-basics/tree/4.2)
+- [4.3] Query is 'count(kube_pod_info{namespace="prometheus", created_by_kind="StatefulSet"})'
