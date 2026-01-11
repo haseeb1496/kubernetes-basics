@@ -51,6 +51,26 @@ spec:
                 configMapKeyRef:
                   name: todo-project-configmap
                   key: TODO_MAX_LENGTH
+            - name: PING_PONG_SERVICE
+              value: "pong-app-svc.exercises.svc.cluster.local"
+            - name: PING_PONG_PORT
+              value: "3000"
           volumeMounts:
             - name: shared-data
               mountPath: /shared
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

@@ -1,12 +1,76 @@
 const Koa = require("koa");
 const Router = require("@koa/router");
 const fs = require("fs");
+const http = require("http");
 
 const app = new Koa();
 const router = new Router();
 
 const PORT = process.env.PORT || 3000;
 const IMAGE_FILE_PATH = "/shared/current-image.jpg";
+
+const PING_PONG_SERVICE =
+  process.env.PING_PONG_SERVICE || "pong-app-svc.exercises.svc.cluster.local";
+const PING_PONG_PORT = process.env.PING_PONG_PORT || "3000";
+
+router.get("/healthz/ready", async (ctx) => {
+  try {
+    const response = await new Promise((resolve, reject) => {
+      const request = http.request(
+        {
+          hostname: PING_PONG_SERVICE,
+          port: PING_PONG_PORT,
+          path: "/healthz/ready",
+          method: "GET",
+          timeout: 3000,
+        },
+        (response) => {
+          let data = "";
+          response.on("data", (chunk) => {
+            data += chunk;
+          });
+          response.on("end", () => {
+            resolve({ statusCode: response.statusCode, data });
+          });
+        }
+      );
+
+      request.on("error", reject);
+      request.on("timeout", () => {
+        request.destroy();
+        reject(new Error("Timeout"));
+      });
+
+      request.end();
+    });
+
+    if (response.statusCode === 200) {
+      ctx.status = 200;
+      ctx.body = {
+        status: "ready",
+        message: "Ping-pong service is reachable",
+        pingPongStatus: response.data,
+      };
+    } else {
+      throw new Error(
+        `Ping-pong service returned status ${response.statusCode}`
+      );
+    }
+  } catch (error) {
+    console.error("Readiness check failed:", error);
+    ctx.status = 503;
+    ctx.body = {
+      status: "not ready",
+      message: "Cannot reach ping-pong service",
+      error: error.message,
+    };
+  }
+});
+
+router.get("/healthz/live", (ctx) => {
+  ctx.status = 200;
+  ctx.body = { status: "alive", message: "Log reader is running" };
+});
 
 router.get("/", (ctx) => {
   ctx.type = "text/html";

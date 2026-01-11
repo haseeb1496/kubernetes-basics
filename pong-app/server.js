@@ -117,6 +117,29 @@ router.get("/", (ctx) => {
   ctx.body = "Ping-Pong Application is running!";
 });
 
+router.get("/healthz/ready", async (ctx) => {
+  try {
+    const client = await pool.connect();
+    await client.query("SELECT 1");
+    client.release();
+    ctx.status = 200;
+    ctx.body = { status: "ready", message: "Database connection is healthy" };
+  } catch (error) {
+    console.error("Readiness check failed:", error);
+    ctx.status = 503;
+    ctx.body = {
+      status: "not ready",
+      message: "Database connection failed",
+      error: error.message,
+    };
+  }
+});
+
+router.get("/healthz/live", (ctx) => {
+  ctx.status = 200;
+  ctx.body = { status: "alive", message: "Application is running" };
+});
+
 app.use(router.routes()).use(router.allowedMethods());
 
 async function startServer() {
