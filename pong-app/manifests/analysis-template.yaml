@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: cpu-usage-analysis
+  namespace: exercises
+spec:
+  metrics:
+    - name: cpu-usage-rate
+      interval: 30s
+      count: 10
+
+      failureLimit: 3
+      successCondition: result[0] < 800
+      failureCondition: result[0] > 1200
+      provider:
+        prometheus:
+          address: http://prometheus-kube-prometheus-prometheus.prometheus.svc.cluster.local:9090
+          query: |
+            sum(
+              rate(container_cpu_usage_seconds_total{
+                namespace="exercises",
+                container!="",
+                container!="POD"
+              }[2m])
+            ) * 1000
+    - name: cpu-usage-spike-detection
+      interval: 60s
+      count: 5
+      failureLimit: 2
+      successCondition: result[0] < 2.5
+      failureCondition: result[0] > 4.0
+      provider:
+        prometheus:
+          address: http://prometheus-kube-prometheus-prometheus.prometheus.svc.cluster.local:9090
+          query: |
+            # Detect if current CPU usage is 3x higher than the 10-minute average
+            (
+              sum(rate(container_cpu_usage_seconds_total{
+                namespace="exercises",
+                container!="",
+                container!="POD"
+              }[2m])) * 1000
+            ) / (
+              sum(rate(container_cpu_usage_seconds_total{
+                namespace="exercises",
+                container!="",
+                container!="POD"
+              }[10m])) * 1000 + 1
+            )
+    - name: memory-usage-check
+      interval: 60s
+      count: 5
+      failureLimit: 3
+      successCondition: result[0] < 512
+      failureCondition: result[0] > 1024
+      provider:
+        prometheus:
+          address: http://prometheus-kube-prometheus-prometheus.prometheus.svc.cluster.local:9090
+          query: |
+            sum(
+              container_memory_working_set_bytes{
+                namespace="exercises",
+                container!="",
+                container!="POD"
+              }
+            ) / (1024*1024)
