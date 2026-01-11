@@ -76,6 +76,24 @@ async function createTodo(text) {
   }
 }
 
+async function updateTodo(id, completed) {
+  try {
+    const client = await pool.connect();
+    const result = await client.query(
+      "UPDATE todos SET completed = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, text, completed, created_at, updated_at",
+      [completed, id]
+    );
+    client.release();
+    if (result.rows.length === 0) {
+      throw new Error("Todo not found");
+    }
+    return result.rows[0];
+  } catch (error) {
+    console.error("Error updating todo:", error);
+    throw error;
+  }
+}
+
 let todos = [];
 let nextId = 1;
 
@@ -221,6 +239,56 @@ router.post("/todos", async (ctx) => {
       success: false,
       error: "Failed to create todo",
     };
+  }
+});
+
+router.put("/todos/:id", async (ctx) => {
+  const { id } = ctx.params;
+  const { completed } = ctx.request.body;
+  const timestamp = new Date().toISOString();
+
+  console.log(
+    `[${timestamp}] PUT /todos/${id} - Updating todo completed status to: ${completed}`
+  );
+
+  if (typeof completed !== "boolean") {
+    console.warn(
+      `[${timestamp}] PUT /todos/${id} - VALIDATION ERROR: Invalid completed value`
+    );
+    ctx.status = 400;
+    ctx.body = {
+      success: false,
+      error: "Completed field must be a boolean value",
+    };
+    return;
+  }
+
+  try {
+    const updatedTodo = await updateTodo(parseInt(id), completed);
+    console.log(`[${timestamp}] PUT /todos/${id} - Successfully updated todo`);
+
+    ctx.status = 200;
+    ctx.type = "application/json";
+    ctx.body = {
+      success: true,
+      todo: updatedTodo,
+    };
+  } catch (error) {
+    if (error.message === "Todo not found") {
+      console.warn(`[${timestamp}] PUT /todos/${id} - Todo not found`);
+      ctx.status = 404;
+      ctx.body = {
+        success: false,
+        error: "Todo not found",
+      };
+    } else {
+      console.error(`[${timestamp}] ERROR in PUT /todos/${id}:`, error);
+      ctx.status = 500;
+      ctx.body = {
+        success: false,
+        error: "Failed to update todo",
+      };
+    }
   }
 });
 

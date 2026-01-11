@@ -90,12 +90,43 @@ router.get("/", (ctx) => {
                     
                     if (data.success && data.todos) {
                         const todoList = document.getElementById('todoList');
-                        todoList.innerHTML = ''; // Clear existing todos
+                        const doneList = document.getElementById('doneList');
+                        todoList.innerHTML = '';
+                        doneList.innerHTML = '';
                         
                         data.todos.forEach(todo => {
                             const listItem = document.createElement('li');
-                            listItem.textContent = todo.text;
-                            todoList.appendChild(listItem);
+                            listItem.style.display = 'flex';
+                            listItem.style.alignItems = 'center';
+                            listItem.style.marginBottom = '8px';
+                            
+                            if (todo.completed) {
+                                const textSpan = document.createElement('span');
+                                textSpan.textContent = todo.text;
+                                textSpan.style.textDecoration = 'line-through';
+                                textSpan.style.color = '#666';
+                                listItem.appendChild(textSpan);
+                                doneList.appendChild(listItem);
+                            } else {
+                                const textSpan = document.createElement('span');
+                                textSpan.textContent = todo.text;
+                                textSpan.style.flexGrow = '1';
+                                
+                                const doneButton = document.createElement('button');
+                                doneButton.textContent = 'Mark as done';
+                                doneButton.style.marginLeft = '10px';
+                                doneButton.style.padding = '4px 8px';
+                                doneButton.style.backgroundColor = '#28a745';
+                                doneButton.style.color = 'white';
+                                doneButton.style.border = 'none';
+                                doneButton.style.borderRadius = '4px';
+                                doneButton.style.cursor = 'pointer';
+                                doneButton.onclick = () => markAsDone(todo.id);
+                                
+                                listItem.appendChild(textSpan);
+                                listItem.appendChild(doneButton);
+                                todoList.appendChild(listItem);
+                            }
                         });
                     } else {
                         console.error('Failed to load todos:', data);
@@ -132,11 +163,8 @@ router.get("/", (ctx) => {
                     const data = await response.json();
                     
                     if (data.success && data.todo) {
-                        // Add the new todo to the list
-                        const todoList = document.getElementById('todoList');
-                        const newTodo = document.createElement('li');
-                        newTodo.textContent = data.todo.text;
-                        todoList.appendChild(newTodo);
+                        
+                        await loadTodos();
                         
                         // Clear the input
                         input.value = '';
@@ -147,6 +175,30 @@ router.get("/", (ctx) => {
                 } catch (error) {
                     console.error('Error creating todo:', error);
                     alert('Failed to create todo. Please try again.');
+                }
+            }
+            
+            async function markAsDone(todoId) {
+                try {
+                    const response = await fetch(TODO_API_BASE + '/' + todoId, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ completed: true })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Reload the todos to reflect the change
+                        await loadTodos();
+                    } else {
+                        alert('Failed to mark todo as done: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error marking todo as done:', error);
+                    alert('Failed to mark todo as done. Please try again.');
                 }
             }
             
@@ -182,6 +234,10 @@ router.get("/", (ctx) => {
         
         <h2>Todo List</h2>
         <ul id="todoList">
+        </ul>
+        
+        <h2>Done Items</h2>
+        <ul id="doneList">
         </ul>
     </body>
     </html>
@@ -233,6 +289,36 @@ router.post("/todos", async (ctx) => {
     ctx.status = response.status;
   } catch (error) {
     console.error("Error proxying POST /todos:", error);
+    ctx.status = 500;
+    ctx.body = { success: false, error: "Failed to connect to todo backend" };
+  }
+});
+
+router.put("/todos/:id", async (ctx) => {
+  try {
+    const body = await new Promise((resolve) => {
+      let data = "";
+      ctx.req.on("data", (chunk) => {
+        data += chunk;
+      });
+      ctx.req.on("end", () => {
+        resolve(data);
+      });
+    });
+
+    const response = await fetch(`${TODO_BACKEND_URL}/todos/${ctx.params.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body,
+    });
+
+    const responseData = await response.json();
+    ctx.body = responseData;
+    ctx.status = response.status;
+  } catch (error) {
+    console.error("Error proxying PUT /todos/:id:", error);
     ctx.status = 500;
     ctx.body = { success: false, error: "Failed to connect to todo backend" };
   }
