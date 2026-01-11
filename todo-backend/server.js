@@ -108,6 +108,42 @@ app.use(async (ctx, next) => {
 app.use(cors());
 app.use(bodyParser());
 
+router.get("/healthz/ready", async (ctx) => {
+  try {
+    const client = await pool.connect();
+    await client.query("SELECT 1");
+    client.release();
+
+    ctx.status = 200;
+    ctx.body = {
+      status: "ready",
+      message: "Database connection is healthy",
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error(
+      `[${new Date().toISOString()}] Readiness check failed:`,
+      error
+    );
+    ctx.status = 503;
+    ctx.body = {
+      status: "not ready",
+      message: "Database connection failed",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    };
+  }
+});
+
+router.get("/healthz/live", (ctx) => {
+  ctx.status = 200;
+  ctx.body = {
+    status: "alive",
+    message: "Todo backend is running",
+    timestamp: new Date().toISOString(),
+  };
+});
+
 router.get("/todos", async (ctx) => {
   console.log(`[${new Date().toISOString()}] GET /todos - Fetching all todos`);
   try {
@@ -191,17 +227,19 @@ router.post("/todos", async (ctx) => {
 app.use(router.routes()).use(router.allowedMethods());
 
 async function startServer() {
-  const dbInitialized = await initializeDatabase();
-
-  if (!dbInitialized) {
-    console.error("Failed to initialize database. Exiting...");
-    process.exit(1);
-  }
-
   app.listen(PORT, () => {
     console.log(`Todo Backend service listening on port: ${PORT}`);
-    console.log("Database connected and ready to serve todos");
   });
+
+  const dbInitialized = await initializeDatabase();
+
+  if (dbInitialized) {
+    console.log("Database connected and ready to serve todos");
+  } else {
+    console.error(
+      "Failed to initialize database. Server started but readiness probe will fail until database is available."
+    );
+  }
 }
 
 process.on("SIGINT", async () => {
