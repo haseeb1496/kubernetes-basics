@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/haseeb1496/kubernetes-basics.git
-    targetRevision: HEAD  # Deploy from main branch
+    targetRevision: HEAD # Deploy from main branch
     path: todo-backend/environments/staging
   destination:
     server: https://kubernetes.default.svc

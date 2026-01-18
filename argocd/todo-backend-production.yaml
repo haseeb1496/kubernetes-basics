@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/haseeb1496/kubernetes-basics.git
-    targetRevision: refs/tags/*
+    targetRevision: v1.0.0-production
     path: todo-backend/environments/production
   destination:
     server: https://kubernetes.default.svc

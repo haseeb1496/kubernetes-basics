@@ -10,7 +10,7 @@ metadata:
     managed-by: argocd
     gitops: enabled
 spec:
-  schedule: "0 2 * * *"  # Daily at 2 AM
+  schedule: "0 2 * * *" # Daily at 2 AM
   jobTemplate:
     spec:
       template:
@@ -21,35 +21,35 @@ spec:
             environment: production
         spec:
           containers:
-          - name: postgres-backup
-            image: postgres:13
-            command:
-            - /bin/bash
-            - -c
-            - |
-              BACKUP_FILE="/backup/postgres_backup_$(date +%Y%m%d_%H%M%S).sql"
-              pg_dump -h postgres-service.todo-production.svc.cluster.local -U todouser -d tododb_production > $BACKUP_FILE
-              echo "Backup completed: $BACKUP_FILE"
-              # Keep only last 7 backups
-              find /backup -name "postgres_backup_*.sql" -mtime +7 -delete
-            env:
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
-            volumeMounts:
-            - name: backup-storage
-              mountPath: /backup
-            resources:
-              requests:
-                memory: "128Mi"
-                cpu: "100m"
-              limits:
-                memory: "256Mi"
-                cpu: "500m"
+            - name: postgres-backup
+              image: postgres:13
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  BACKUP_FILE="/backup/postgres_backup_$(date +%Y%m%d_%H%M%S).sql"
+                  pg_dump -h postgres-service.todo-production.svc.cluster.local -U todouser -d tododb_production > $BACKUP_FILE
+                  echo "Backup completed: $BACKUP_FILE"
+                  # Keep only last 7 backups
+                  find /backup -name "postgres_backup_*.sql" -mtime +7 -delete
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+              resources:
+                requests:
+                  memory: "128Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "256Mi"
+                  cpu: "500m"
           volumes:
-          - name: backup-storage
-            persistentVolumeClaim:
-              claimName: postgres-backup-pvc
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: postgres-backup-pvc
           restartPolicy: OnFailure

@@ -21,18 +21,18 @@ spec:
             environment: staging
         spec:
           containers:
-          - name: wikipedia-todo
-            image: todo-app:latest
-            imagePullPolicy: IfNotPresent
-            command: ["npm", "run", "cronjob"]
-            env:
-            - name: TODO_BACKEND_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: todo-project-configmap
-                  key: TODO_BACKEND_URL
-            - name: ENVIRONMENT
-              value: "staging"
-            - name: BROADCAST_MODE
-              value: "log-only"
+            - name: wikipedia-todo
+              image: todo-app:latest
+              imagePullPolicy: IfNotPresent
+              command: ["npm", "run", "cronjob"]
+              env:
+                - name: TODO_BACKEND_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: todo-project-configmap
+                      key: TODO_BACKEND_URL
+                - name: ENVIRONMENT
+                  value: "staging"
+                - name: BROADCAST_MODE
+                  value: "log-only"
           restartPolicy: OnFailure

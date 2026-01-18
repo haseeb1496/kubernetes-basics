@@ -21,25 +21,25 @@ spec:
             environment: production
         spec:
           containers:
-          - name: wikipedia-todo
-            image: todo-app:latest
-            imagePullPolicy: IfNotPresent
-            command: ["npm", "run", "cronjob"]
-            env:
-            - name: TODO_BACKEND_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: todo-project-configmap
-                  key: TODO_BACKEND_URL
-            - name: ENVIRONMENT
-              value: "production"
-            - name: BROADCAST_MODE
-              value: "external-service"
-            resources:
-              requests:
-                memory: "64Mi"
-                cpu: "50m"
-              limits:
-                memory: "128Mi"
-                cpu: "200m"
+            - name: wikipedia-todo
+              image: todo-app:latest
+              imagePullPolicy: IfNotPresent
+              command: ["npm", "run", "cronjob"]
+              env:
+                - name: TODO_BACKEND_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: todo-project-configmap
+                      key: TODO_BACKEND_URL
+                - name: ENVIRONMENT
+                  value: "production"
+                - name: BROADCAST_MODE
+                  value: "external-service"
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "200m"
           restartPolicy: OnFailure
