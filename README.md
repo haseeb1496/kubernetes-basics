@@ -45,3 +45,7 @@
 - [4.7](https://github.com/haseeb1496/kubernetes-basics/tree/4.7)
 - [4.8](https://github.com/haseeb1496/kubernetes-basics/tree/4.8)
 - [4.9](https://github.com/haseeb1496/kubernetes-basics/tree/4.9)
+
+### Chapter 6
+
+-[5.1](https://github.com/haseeb1496/kubernetes-basics/tree/5.1)
