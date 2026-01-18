@@ -43,3 +43,4 @@
 - [4.4](https://github.com/haseeb1496/kubernetes-basics/tree/4.4)
 - [4.5](https://github.com/haseeb1496/kubernetes-basics/tree/4.5)
 - [4.7](https://github.com/haseeb1496/kubernetes-basics/tree/4.7)
+- [4.8](https://github.com/haseeb1496/kubernetes-basics/tree/4.8)
