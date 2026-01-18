@@ -3,6 +3,10 @@ kind: Service
 metadata:
   name: todo-backend-svc
   namespace: project
+  labels:
+    app: todo-backend
+    managed-by: argocd
+    gitops: enabled
 spec:
   type: ClusterIP
   selector:

@@ -5,6 +5,8 @@ metadata:
   namespace: project
   labels:
     app: todo-app
+    managed-by: argocd
+    gitops: enabled
 spec:
   replicas: 1
   selector:

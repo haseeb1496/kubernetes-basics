@@ -3,12 +3,18 @@ kind: ConfigMap
 metadata:
   name: todo-project-configmap
   namespace: project
+  labels:
+    app: todo-app
+    managed-by: argocd
+    gitops: enabled
 data:
   TODO_BACKEND_HOST: "todo-backend-svc.project.svc.cluster.local"
   TODO_BACKEND_PORT: "3000"
   TODO_BACKEND_URL: "http://todo-backend-svc.project.svc.cluster.local:3000"
 
   TODO_MAX_LENGTH: "140"
+  GITOPS_MANAGED: "true"
+  GITOPS_DEMO: "Todo project managed by ArgoCD - changes auto-deployed!"
 
   TODO_APP_PORT: "8080"
   TODO_BACKEND_SERVICE_PORT: "3000"

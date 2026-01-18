@@ -3,6 +3,10 @@ kind: Deployment
 metadata:
   name: todo-backend-deployment
   namespace: project
+  labels:
+    app: todo-backend
+    managed-by: argocd
+    gitops: enabled
 spec:
   replicas: 1
   selector:
