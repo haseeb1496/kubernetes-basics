@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app-deployment
+  namespace: todo-production
+  labels:
+    app: todo-app
+    environment: production
+    managed-by: argocd
+    gitops: enabled
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo-app
+      environment: production
+  template:
+    metadata:
+      labels:
+        app: todo-app
+        environment: production
+    spec:
+      containers:
+        - name: todo-app-container
+          image: todo-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_APP_PORT
+            - name: TODO_BACKEND_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_BACKEND_HOST
+            - name: TODO_BACKEND_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_BACKEND_PORT
+            - name: TODO_BACKEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-project-configmap
+                  key: TODO_BACKEND_URL
+            - name: ENVIRONMENT
+              value: "production"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"

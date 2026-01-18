@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend-deployment
+  namespace: todo-staging
+  labels:
+    app: todo-backend
+    environment: staging
+    managed-by: argocd
+    gitops: enabled
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-backend
+      environment: staging
+  template:
+    metadata:
+      labels:
+        app: todo-backend
+        environment: staging
+    spec:
+      containers:
+        - name: todo-backend-container
+          image: todo-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: TODO_MAX_LENGTH
+              value: "140"
+            - name: POSTGRES_HOST
+              value: "postgres-service.todo-staging.svc.cluster.local"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: "tododb_staging"
+            - name: POSTGRES_USER
+              value: "todouser"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: ENVIRONMENT
+              value: "staging"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

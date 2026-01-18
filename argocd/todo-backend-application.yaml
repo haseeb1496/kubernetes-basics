@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: todo-backend-gitops
+  name: todo-backend-staging
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -10,10 +10,10 @@ spec:
   source:
     repoURL: https://github.com/haseeb1496/kubernetes-basics.git
     targetRevision: HEAD
-    path: todo-backend/manifests
+    path: todo-backend/environments/staging
   destination:
     server: https://kubernetes.default.svc
-    namespace: project
+    namespace: todo-staging
   syncPolicy:
     automated:
       prune: true
