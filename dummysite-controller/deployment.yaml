@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummysite-controller
+  namespace: default
+  labels:
+    app: dummysite-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummysite-controller
+  template:
+    metadata:
+      labels:
+        app: dummysite-controller
+    spec:
+      serviceAccountName: dummysite-controller
+      containers:
+        - name: controller
+          image: dummysite-controller:latest
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+          env:
+            - name: NODE_ENV
+              value: "production"
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "ps aux | grep '[n]ode controller.js' || exit 1"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "ps aux | grep '[n]ode controller.js' || exit 1"
+            initialDelaySeconds: 5
+            periodSeconds: 5

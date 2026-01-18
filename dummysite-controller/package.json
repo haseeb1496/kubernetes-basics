@@ -1,0 +1,15 @@
+{
+  "name": "dummysite-controller",
+  "version": "1.0.0",
+  "description": "Kubernetes controller for DummySite resources",
+  "main": "controller.js",
+  "scripts": {
+    "start": "node controller.js"
+  },
+  "dependencies": {
+    "@kubernetes/client-node": "^0.20.0",
+    "axios": "^1.6.0"
+  },
+  "author": "",
+  "license": "MIT"
+}
