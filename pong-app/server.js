@@ -5,7 +5,7 @@ const { Pool } = require("pg");
 const app = new Koa();
 const router = new Router();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 const pool = new Pool({
   host: process.env.POSTGRES_HOST || "postgres-service",
@@ -39,7 +39,7 @@ async function initializeDatabase() {
     `);
 
     const counterResult = await client.query(
-      "SELECT value FROM counters WHERE name = 'pingpong'"
+      "SELECT value FROM counters WHERE name = 'pingpong'",
     );
     const currentCounter = counterResult.rows[0]?.value || 0;
 
@@ -57,7 +57,7 @@ async function getCounter() {
   try {
     const client = await pool.connect();
     const result = await client.query(
-      "SELECT value FROM counters WHERE name = 'pingpong'"
+      "SELECT value FROM counters WHERE name = 'pingpong'",
     );
     const counter = result.rows[0]?.value || 0;
     client.release();

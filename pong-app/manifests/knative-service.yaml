@@ -1,0 +1,30 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: pong-app
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/min-scale: "1"
+        autoscaling.knative.dev/max-scale: "5"
+    spec:
+      containers:
+        - image: haseeb1496/pong-app:serverless
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POSTGRES_HOST
+              value: "postgres-service"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: "pingpongdb"
+            - name: POSTGRES_USER
+              value: "pingponguser"
+            - name: POSTGRES_PASSWORD
+              value: "pingpongpassword"
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
