@@ -50,3 +50,4 @@
 
 - [5.1](https://github.com/haseeb1496/kubernetes-basics/tree/5.1)
 - [5.2](https://github.com/haseeb1496/kubernetes-basics/tree/5.2)
+- [5.4](https://github.com/haseeb1496/kubernetes-basics/tree/5.4)
