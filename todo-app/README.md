@@ -1,6 +1,55 @@
-## Todo app
+## Todo App
 
-Deploy with `kubectl apply -f manifests/deployment.yaml`
+A todo application with Wikipedia image fetching via CronJob.
+
+### Prerequisites
+
+- Node.js (v18+)
+- Docker
+- kubectl configured with a Kubernetes cluster (k3d recommended)
+
+### Run Locally
+
+```bash
+cd todo-app
+npm install
+npm start
+```
+
+App runs on http://localhost:8080
+
+### Build Docker Image
+
+```bash
+docker build -t <your-dockerhub>/todo-app:latest .
+docker push <your-dockerhub>/todo-app:latest
+```
+
+### Deploy to Kubernetes
+
+```bash
+# Deploy ConfigMap first
+kubectl apply -f manifests/configmap.yaml
+
+# Deploy the app
+kubectl apply -f manifests/deployment.yaml
+kubectl apply -f manifests/service.yaml
+
+# Deploy the CronJob (fetches Wikipedia image)
+kubectl apply -f manifests/cronjob.yaml
+
+# Check pods
+kubectl get pods
+```
+
+### Access the App
+
+```bash
+# Port forward
+kubectl port-forward svc/todo-svc 8080:80
+
+# Open http://localhost:8080
+```
 
 ---
 

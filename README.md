@@ -1,9 +1,5 @@
 # Kubernetes Basics
 
-- The Project app UI is located in log-output/reader.js.
-- Todo functionality is located in todo-backend/server.js
-- Project app can be run by deploying log-output-deployment
-
 ## Exercises
 
 ### Chapter 2
@@ -34,6 +30,10 @@
 - [2.8](https://github.com/haseeb1496/kubernetes-basics/tree/2.8)
 - [2.9](https://github.com/haseeb1496/kubernetes-basics/tree/2.9)
 - [2.10](https://github.com/haseeb1496/kubernetes-basics/tree/2.10)
+
+### Chapter 4
+
+- [3.9] (https://github.com/haseeb1496/kubernetes-basics/tree/3.9)
 
 ### Chapter 5
 
