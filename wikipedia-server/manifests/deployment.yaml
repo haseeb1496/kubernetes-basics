@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wikipedia-server
+  labels:
+    app: wikipedia-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wikipedia-server
+  template:
+    metadata:
+      labels:
+        app: wikipedia-server
+    spec:
+      initContainers:
+        - name: init-fetch-kubernetes
+          image: curlimages/curl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Fetching Kubernetes Wikipedia page..."
+              curl -L -o /www/index.html https://en.wikipedia.org/wiki/Kubernetes
+              echo "Initial page saved to /www/index.html"
+          volumeMounts:
+            - name: www-data
+              mountPath: /www
+
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: www-data
+              mountPath: /usr/share/nginx/html
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+
+        - name: wiki-fetcher
+          image: curlimages/curl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                # Generate random wait time between 5 and 15 minutes (300-900 seconds)
+                WAIT_TIME=$((300 + $(od -An -N2 -tu2 /dev/urandom | tr -d ' ') % 601))
+                echo "Waiting for $WAIT_TIME seconds ($(($WAIT_TIME / 60)) minutes) before fetching next page..."
+                sleep $WAIT_TIME
+                
+                echo "Fetching random Wikipedia page..."
+                # Follow redirects from Special:Random to get the actual page
+                curl -L -o /www/index.html https://en.wikipedia.org/wiki/Special:Random
+                echo "Random page saved at $(date)"
+              done
+          volumeMounts:
+            - name: www-data
+              mountPath: /www
+          resources:
+            limits:
+              memory: "64Mi"
+              cpu: "50m"
+
+      volumes:
+        - name: www-data
+          emptyDir: {}
